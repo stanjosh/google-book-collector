@@ -14,8 +14,8 @@ const resolvers = {
   },
 
   Mutation: {
-    saveUser: async (parent, { name, email, password }) => {
-      const user = await User.create({ name, email, password });
+    saveUser: async (parent, { username, email, password }) => {
+      const user = await User.create({ username, email, password });
       const token = signToken(user);
 
       return { token, user };
@@ -38,20 +38,24 @@ const resolvers = {
     },
 
     // Add a third argument to the resolver to access data in our `context`
-    saveBook: async (parent, { userId, book }, context) => {
+    saveBook: async (parent, { input }, context) => {
       // If context has a `user` property, that means the user executing this mutation has a valid JWT and is logged in
       if (context.user) {
-        return User.findOneAndUpdate(
-          { _id: userId },
+        
+        let bookUser =  await User.findByIdAndUpdate(
+          { _id: context.user._id },
           {
-            $addToSet: { books: book },
+            $push: { savedBooks: input },
           },
           {
             new: true,
             runValidators: true,
           }
         );
+        console.log(bookUser)
+        return bookUser
       }
+
       // If user attempts to execute this mutation and isn't logged in, throw an error
       throw new AuthenticationError('You need to be logged in!');
     },
@@ -63,11 +67,15 @@ const resolvers = {
     //   throw new AuthenticationError('You need to be logged in!');
     // },
     // Make it so a logged in user can only remove a book from their own user
-    removeBook: async (parent, { book }, context) => {
-      if (context.user) {``
+    removeBook: async (parent, { bookId }, context) => {
+      if (context.user) {
         return User.findOneAndUpdate(
           { _id: context.user._id },
-          { $pull: { books: book } },
+          { $pull: { 
+            savedBooks: { 
+              bookId : bookId 
+            } 
+          }},
           { new: true }
         );
       }
