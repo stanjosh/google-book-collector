@@ -19,8 +19,6 @@ const typeDefs = gql`
     savedBooks : [Book]
   }
 
-
-
   input BookInput {
     bookId: String
     authors: [String]

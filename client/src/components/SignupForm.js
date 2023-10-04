@@ -28,11 +28,9 @@ const SignupForm = () => {
     }
 
     try {
-      console.log(userFormData)
       const user = await saveUser({
         variables: userFormData,
       });
-      console.log(user);
       Auth.login(user.data.saveUser.token);
     } catch (err) {
       console.error(err);

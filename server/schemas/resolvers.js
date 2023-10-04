@@ -41,7 +41,7 @@ const resolvers = {
     saveBook: async (parent, { input }, context) => {
       // If context has a `user` property, that means the user executing this mutation has a valid JWT and is logged in
       if (context.user) {
-        
+
         let bookUser =  await User.findByIdAndUpdate(
           { _id: context.user._id },
           {
